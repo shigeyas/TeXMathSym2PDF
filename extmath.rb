@@ -47,7 +47,7 @@ class MathPDF
 \\pagestyle{empty}
 \\begin{document}
 % If you want to change the size of equation, edit next line.
-{\\Huge
+{\\#{@opts[:size_param]}
 \\begin{eqnarray*}
 #{v}
 \\end{eqnarray*}
@@ -103,7 +103,8 @@ if __FILE__ == $0
     :latex => "latex",
     :dvips => "dvips",
     :epstopdf => "epstopdf",
-    :unlink_list => [".tex", ".aux", ".dvi", ".ps", ".log"]
+    :unlink_list => [".tex", ".aux", ".dvi", ".ps", ".log"],
+    :size_param => "Huge"
   }
 
   ARGV.options do |o|
@@ -112,7 +113,8 @@ if __FILE__ == $0
 
     o.on("-F", "--force", "Force recreate all files") {|x| opts[:recreate] = true }
     o.on("-N", "--no-map", "Don't create math-index.map file") {|x| opts[:create_map] = false }
-    o.on("-M MAP", "--map MAP", "create map file with name") {|x| opts[:create_map] = x }
+    o.on("-m MAP", "--map MAP", "create map file with name") {|x| opts[:create_map] = x }
+    o.on("-s size", "--size SIZE", "specify size parameter (default:#{opts[:size_param]})") {|x| opts[:size_param] = x }
 
     o.on("-r resolution", "--resolution r", "Output resolution (default:#{opts[:resolution]})") {|x| opts[:resolution] = x.to_i }
 
