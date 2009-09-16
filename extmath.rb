@@ -14,7 +14,7 @@ class MathPDF
   
   def initialize(opts)
     @opts = opts
-    @syms = Hash.new {|h,k| h[k] = 0 }
+    @syms = Hash.new
   end
 
   def calc_hash(v)
@@ -65,7 +65,7 @@ EOF
         generate_tex(v)
       end
       system("#{@opts[:latex]} #{base}")
-      system ("#{@opts[:dvips]} -E -f -X #{@opts[:resolution]} -Y #{@opts[:resolution]} #{base}.dvi > #{base}.ps")
+      system("#{@opts[:dvips]} -E -f -X #{@opts[:resolution]} -Y #{@opts[:resolution]} #{base}.dvi > #{base}.ps")
       system("#{@opts[:epstopdf]} #{base}.ps")
       @opts[:unlink_list].each {|s| File.unlink(base+s) }
     end
@@ -99,8 +99,6 @@ if __FILE__ == $0
     :recreate => false,
     :resolution => 600,
     :path => "./Temp",
-    :retain_tex => false,
-    :retain_eps => false,
     :file_encoding => "EUC-JP",
     :latex => "latex",
     :dvips => "dvips",
