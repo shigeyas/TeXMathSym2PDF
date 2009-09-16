@@ -1,0 +1,11 @@
+Extract and translate Math expressions/symbols in TeX files to PDF files
+one by one
+
+Requires
+	Ruby 1.9
+	LaTeX2e
+	dvips
+	epstopdf
+
+This work is inspired by OmniGraffle Equasion support:
+http://macinscience.org/?p=12
