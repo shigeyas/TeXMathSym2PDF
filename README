@@ -1,11 +1,62 @@
-Extract and translate Math expressions/symbols in TeX files to PDF files
-one by one
+TeXMathSym2PDF
 
-Requires
+	Extract and translate Math expressions/symbols in TeX files to PDF files
+	one by one
+
+* Author:
+
+  shigeyas, Septermber 2009
+
+
+* Credits:
+
+  This work is inspired by OmniGraffle Equasion support:
+  http://macinscience.org/?p=12
+
+
+* Requirments:
+
 	Ruby 1.9
-	LaTeX2e
+	latex	(LaTeX2e)
 	dvips
 	epstopdf
 
-This work is inspired by OmniGraffle Equasion support:
-http://macinscience.org/?p=12
+Assuming latex, dvips and epstopdf are in invoker's shell path.
+
+
+* To Execute:
+
+Run:
+
+   ruby extmath.rb --help
+
+to see help. Default is, scan given TeX file and creating PDF file in
+./Temp directory, one by one, under the name with the hash(MD5) value
+of the TeX representation of the symbol. For example,
+
+    C_n
+
+will generate
+
+    0a22604c6270cafda16d1bee51963ab4.pdf
+
+Note that, C_n and C_{n} will look same but this program does not
+detech such braces nor spaces, effectively create different file.
+
+
+All of the mapping of the hash (filename and the symbol will be
+written in symbol-map.txt file. This file contains tab separated values
+of hash value and the symbol, in the order of hash (alphabetically sorted).
+
+
+* MacOS X NOTE
+   I observed if I open folder which is the target folder of this script,
+   Finder of the Snow Leopard might stop responding, while it is keep trying
+   to detect status of appearing/disappearing of temporary files. If
+   such happen, just re-launch Finder.
+
+
+
+* TODO:
+
+- Support for eqnarray will come soon.
