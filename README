@@ -11,11 +11,11 @@ TeXMathSym2PDF
 
 * Credits:
 
-  This work is inspired by OmniGraffle Equasion support:
+  This work is inspired by OmniGraffle Equation support:
   http://macinscience.org/?p=12
 
 
-* Requirments:
+* Requirements:
 
 	Ruby 1.9
 	latex	(LaTeX2e)
@@ -43,11 +43,11 @@ will generate
 
 Note that, C_n and C_{n} will create same output but this program does
 not detect braces nor spaces which TeX will ignore in glyph sense, but
-it will cause create different file.  Note that multiple whitespaces
+it will cause create different file.  Note that multiple white-spaces
 in the expression are compressed into single space, before use as
 symbol value.
 
-All of the mapping of the hash (filename and the symbol will be
+All of the mapping of the hash (file name and the symbol will be
 written in symbol-map.txt file. This file contains tab separated values
 of hash value and the symbol, in the order of hash (alphabetically sorted).
 
@@ -63,7 +63,7 @@ macros in the math descriptions.
 
   By default, this program do not re-create PDF if there is one for that 
   symbol. This option override that behavior to force create all outputs.
-  (Since filename is created from hash of the TeX math representation,
+  (Since file name is created from hash of the TeX math representation,
    it is safe to assume output is same unless resolution parameter is same)
 
 -N, --no-map                     Don't create math-index.map file
@@ -73,12 +73,12 @@ macros in the math descriptions.
 
 -m, --map MAP                    create map file with name (Default: symbol-map.txt)
 
-  Specify filename of the filename to symbol map text file and create it
+  Specify file name of the file name to symbol map text file and create it
 
 
 -s, --size SIZE                  specify size parameter (default:Huge)
 
-  Specify the font paramter to be used. Use LaTeX size spec here
+  Specify the font parameter to be used. Use LaTeX size spec here
 
 
 -r, --resolution RESOLUTION      Output resolution (default:600)
@@ -86,12 +86,12 @@ macros in the math descriptions.
   Specify the output resolution in dots per inch, which passed to dvips command.
 
 
--p, --path PATH                  Directory to generate PDFs (default: ./Temp)
+-p, --path PATH                  Directory to generate PDF (default: ./Temp)
 
   Specify the path of the directory for the output.
 
 
--i, --include PREAMBLE           Includ this file in TeX preamble if exists (default: math-preamble.tex)
+-i, --include PREAMBLE           Include this file in TeX preamble if exists (default: math-preamble.tex)
 
   Specify the file to be included as the preamble section of TeX file to be processed, 
   if the file exists.   You can specify macros and such in this file.
