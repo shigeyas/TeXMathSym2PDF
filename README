@@ -48,6 +48,11 @@ All of the mapping of the hash (filename and the symbol will be
 written in symbol-map.txt file. This file contains tab separated values
 of hash value and the symbol, in the order of hash (alphabetically sorted).
 
+Additionally, you can create math-preamble.tex in the PDF output
+directory which will be included in the preamble of each TeX run (file
+name can be specified via -i option). Using this, you can use some
+macros in the math descriptions.
+
 
 * MacOS X NOTE
    I observed if I open folder which is the target folder of this script,
