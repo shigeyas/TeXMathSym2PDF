@@ -32,7 +32,6 @@ class MathPDF
       v.each {|e| add(e) }
     end
     if @opts[:output_by_box]
-      s = v.join(" ")
       add(v.join(" "))
     end
   end
