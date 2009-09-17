@@ -22,7 +22,19 @@ class MathPDF
   end
 
   def add(v)
+    v.gsub!(/\n/, " ")
+    v.gsub!(/\s+/, " ")
     @syms[v] = calc_hash(v)
+  end
+
+  def add_block(v)
+    if @opts[:output_by_line]
+      v.each {|e| add(e) }
+    end
+    if @opts[:output_by_box]
+      s = v.join(" ")
+      add(v.join(" "))
+    end
   end
 
   ############################################## eqnarray environment processor
@@ -61,7 +73,7 @@ class MathPDF
 
     def store
       # outer is already eqnarray. drop them.
-      @pdf.add(@line.join(" "))
+      @pdf.add_block(@line)
     end
   end
 
@@ -77,7 +89,7 @@ class MathPDF
 
 
   def scan(file)
-    open(file, "r:#{@opts[:file_encoding]}:UTF-8") do |f|
+    open(file, "r#{@opts[:file_encoding]}") do |f|
       a = nil
       f.each do |l|
         unless l =~  /^\s*\%/
@@ -104,7 +116,7 @@ class MathPDF
 
 
   def generate_tex(v)
-    open("#{@syms[v]}.tex", "w") do |w|
+    open("#{@syms[v]}.tex", "w#{@opts[:file_encoding]}") do |w|
       w.puts <<EOF
 \\documentclass{article}
 \\usepackage{amsmath,amssymb}
@@ -125,13 +137,13 @@ EOF
 
   def generate_pdf(v)
     base = @syms[v]
-    if @opts[:recreate] or FileTest.exist?("#{base}.pdf") == false
+    if @opts[:recreate] or ( (FileTest.exist?("#{base}.pdf") == false and @opts[:output_pdf] == true) or (FileTest.exist?("#{base}.ps") == false and @opts[:output_pdf] == false ) )
       unless FileTest.exist?("#{base}.tex")
         generate_tex(v)
       end
       system("#{@opts[:latex]} #{base}")
       system("#{@opts[:dvips]} -E -f -X #{@opts[:resolution]} -Y #{@opts[:resolution]} #{base}.dvi > #{base}.ps")
-      system("#{@opts[:epstopdf]} #{base}.ps")
+      system("#{@opts[:epstopdf]} #{base}.ps") if @opts[:output_pdf]
       @opts[:unlink_list].each {|s| File.unlink(base+s) }
     end
   end
@@ -142,9 +154,9 @@ EOF
 
   def write_map
     if @opts[:create_map] != nil
-      open(@opts[:create_map], "w:#{@opts[:file_encoding]}:UTF-8") do |f|
+      open(@opts[:create_map], "w#{@opts[:file_encoding]}") do |f|
         a = Array.new
-        @syms.keys.each {|k| a.push("#{@syms[k]}\t#{k}") }
+        @syms.keys.each {|k| kk = k.gsub(/\n/, " "); a.push("#{@syms[k]}\t#{kk}") }
         a.sort.each {|v| f.puts v}
       end
     end
@@ -180,12 +192,15 @@ if __FILE__ == $0
     :resolution => 600,
     :path => "./Temp",
     :preamble => "math-preamble.tex",
-    :file_encoding => "EUC-JP",
+    :file_encoding => ":BINARY",
     :latex => "latex",
     :dvips => "dvips",
     :epstopdf => "epstopdf",
     :unlink_list => [".tex", ".aux", ".dvi", ".ps", ".log"],
-    :size_param => "Huge"
+    :output_pdf => true,
+    :size_param => "Huge",
+    :output_by_box => true,
+    :output_by_line => false
   }
 
   ARGV.options do |o|
@@ -194,14 +209,14 @@ if __FILE__ == $0
 
     o.on("-F", "--force", "Force recreate all files") {|x| opts[:recreate] = true }
     o.on("-N", "--no-map", "Don't create math-index.map file") {|x| opts[:create_map] = false }
-    o.on("-m MAP", "--map MAP", "create map file with name") {|x| opts[:create_map] = x }
-    o.on("-s size", "--size SIZE", "specify size parameter (default:#{opts[:size_param]})") {|x| opts[:size_param] = x }
+    o.on("-m MAP", "--map MAP", "create map file with name (Default: #{opts[:create_map]})") {|x| opts[:create_map] = x }
+    o.on("-s SIZE", "--size SIZE", "specify size parameter (default:#{opts[:size_param]})") {|x| opts[:size_param] = x }
 
-    o.on("-r resolution", "--resolution r", "Output resolution (default:#{opts[:resolution]})") {|x| opts[:resolution] = x.to_i }
+    o.on("-r RESOLUTION", "--resolution RESOLUTION", "Output resolution (default:#{opts[:resolution]})") {|x| opts[:resolution] = x.to_i }
 
-    o.on("-p path", "--path path", "Directory to generate PDFs (default: #{opts[:path]})") {|x| opts[:path] = x }
+    o.on("-p PATH", "--path PATH", "Directory to generate PDFs (default: #{opts[:path]})") {|x| opts[:path] = x }
 
-    o.on("-i preamble", "--include preamble", "Includ this file in TeX preamble if exists (default: #{opts[:preamble]})") {|x| opts[:preamble] = x }
+    o.on("-i PREAMBLE", "--include PREAMBLE", "Includ this file in TeX preamble if exists (default: #{opts[:preamble]})") {|x| opts[:preamble] = x }
 
     o.on("-T", "--retain-tex", "Retain TeX output file") do |x|
       opts[:unlink_list].delete_if {|s| s == ".tex"}
@@ -211,9 +226,17 @@ if __FILE__ == $0
       opts[:unlink_list].delete_if {|s| s == ".ps" }
     end
 
-    o.on("-P", "--remove-pdf", "Remove PDF output file") do
-      opts[:unlink_list].push(".pdf")
+    o.on("-P", "--no-pdf", "don't output PDF file") do
+      opts[:output_pdf] = false
     end
+
+    o.on("-J", "--japanese", "Configure for Japanese environment") do
+      opts[:latex] = "platex"
+    end
+
+    o.on("-L", "--by-line", "Output only by line in eqnarray") {|x| opts[:output_by_line] = true; opts[:output_by_box] = false }
+    o.on("-B", "--by-box", "Output only by box in eqnarray") {|x| opts[:output_by_line] = false; opts[:output_by_box] = true }
+    o.on("-A", "--by-box-and-line", "Output both box and line-by-line in eqnarray") {|x| opts[:output_by_line] = true; opts[:output_by_box] = true }
 
     o.parse!
 

@@ -6,6 +6,7 @@ TeXMathSym2PDF
 * Author:
 
   shigeyas, Septermber 2009
+  Contact via http://github.com/shigeyas/
 
 
 * Credits:
@@ -24,15 +25,15 @@ TeXMathSym2PDF
 Assuming latex, dvips and epstopdf are in invoker's shell path.
 
 
-* To Execute:
+* Running:
 
-Run:
+Run by
 
-   ruby extmath.rb --help
+   ruby extmath.rb TeX-Files
 
-to see help. Default is, scan given TeX file and creating PDF file in
-./Temp directory, one by one, under the name with the hash(MD5) value
-of the TeX representation of the symbol. For example,
+Default action is, scan given TeX file and creating PDF file in ./Temp
+directory, one by one, under the name with the hash(MD5) value of the
+TeX representation of the symbol. For example,
 
     C_n
 
@@ -40,9 +41,11 @@ will generate
 
     0a22604c6270cafda16d1bee51963ab4.pdf
 
-Note that, C_n and C_{n} will look same but this program does not
-detech such braces nor spaces, effectively create different file.
-
+Note that, C_n and C_{n} will create same output but this program does
+not detect braces nor spaces which TeX will ignore in glyph sense, but
+it will cause create different file.  Note that multiple whitespaces
+in the expression are compressed into single space, before use as
+symbol value.
 
 All of the mapping of the hash (filename and the symbol will be
 written in symbol-map.txt file. This file contains tab separated values
@@ -52,6 +55,82 @@ Additionally, you can create math-preamble.tex in the PDF output
 directory which will be included in the preamble of each TeX run (file
 name can be specified via -i option). Using this, you can use some
 macros in the math descriptions.
+
+
+* Options
+
+-F, --force                      Force recreate all files
+
+  By default, this program do not re-create PDF if there is one for that 
+  symbol. This option override that behavior to force create all outputs.
+  (Since filename is created from hash of the TeX math representation,
+   it is safe to assume output is same unless resolution parameter is same)
+
+-N, --no-map                     Don't create math-index.map file
+
+  Do not create math-index.map file
+
+
+-m, --map MAP                    create map file with name (Default: symbol-map.txt)
+
+  Specify filename of the filename to symbol map text file and create it
+
+
+-s, --size SIZE                  specify size parameter (default:Huge)
+
+  Specify the font paramter to be used. Use LaTeX size spec here
+
+
+-r, --resolution RESOLUTION      Output resolution (default:600)
+
+  Specify the output resolution in dots per inch, which passed to dvips command.
+
+
+-p, --path PATH                  Directory to generate PDFs (default: ./Temp)
+
+  Specify the path of the directory for the output.
+
+
+-i, --include PREAMBLE           Includ this file in TeX preamble if exists (default: math-preamble.tex)
+
+  Specify the file to be included as the preamble section of TeX file to be processed, 
+  if the file exists.   You can specify macros and such in this file.
+
+
+-T, --retain-tex                 Retain TeX output file
+
+  Don't remove .tex file after processing.
+
+
+-E, --retain-ps                  Retain PS output file
+
+  Don't remove .ps file after processing
+
+
+-P, --no-pdf                     don't output PDF file
+
+  Don't create PDF files. You may combine -E -P to create PostScript file only.
+
+
+-J, --japanese                   Configure for Japanese environment
+
+  Use 'platex' instead of 'latex'
+  
+
+-L, --by-line                    Output only by line in eqnarray
+-B, --by-box                     Output only by box in eqnarray
+-A, --by-box-and-line            Output both box and line-by-line in eqnarray
+
+  By default all of the eqnarray output will be generated per eqnarray block.
+  -L force output by line by line only. -B specify output in box only(default)
+  And -A output both boxes and lines.
+
+
+* Japanese Support
+
+Use '-J' option to use platex instead of latex. The code have support
+for character encodings, but it is currently configured to treat all
+external files as binary file and does not translate any.
 
 
 * MacOS X NOTE
@@ -64,4 +143,4 @@ macros in the math descriptions.
 
 * TODO:
 
-- Support for eqnarray will come soon.
+- Possibly provide support for other eqnarray like environment.
