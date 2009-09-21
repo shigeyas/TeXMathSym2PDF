@@ -119,11 +119,12 @@ macros in the math descriptions.
 
 -L, --by-line                    Output only by line in eqnarray
 -B, --by-box                     Output only by box in eqnarray
--A, --by-box-and-line            Output both box and line-by-line in eqnarray
+-A, --by-box-line                Output both box and line-by-line in eqnarray
+-I, --by-box-line-item	         Output each item in eqnarray row/column
 
   By default all of the eqnarray output will be generated per eqnarray block.
   -L force output by line by line only. -B specify output in box only(default)
-  And -A output both boxes and lines.
+  And -A output both boxes and lines, -S output boxes, lines and items.
 
 
 * Japanese Support

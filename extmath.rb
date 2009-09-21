@@ -22,12 +22,16 @@ class MathPDF
   end
 
   def add(v)
+    v.strip!
     v.gsub!(/\n/, " ")
     v.gsub!(/\s+/, " ")
     @syms[v] = calc_hash(v)
   end
 
   def add_block(v)
+    if @opts[:output_by_item]
+      v.each {|l| l.split(/\&/).each {|e| add(e) } }
+    end
     if @opts[:output_by_line]
       v.each {|e| add(e) }
     end
@@ -154,9 +158,7 @@ EOF
   def write_map
     if @opts[:create_map] != nil
       open(@opts[:create_map], "w#{@opts[:file_encoding]}") do |f|
-        a = Array.new
-        @syms.keys.each {|k| kk = k.gsub(/\n/, " "); a.push("#{@syms[k]}\t#{kk}") }
-        a.sort.each {|v| f.puts v}
+        @syms.keys.sort.each {|k| kk = k.gsub(/\n/, " "); f.puts "#{@syms[k]}\t#{kk}" }
       end
     end
   end
@@ -199,7 +201,8 @@ if __FILE__ == $0
     :output_pdf => true,
     :size_param => "Huge",
     :output_by_box => true,
-    :output_by_line => false
+    :output_by_line => false,
+    :output_by_item => false
   }
 
   ARGV.options do |o|
@@ -233,9 +236,20 @@ if __FILE__ == $0
       opts[:latex] = "platex"
     end
 
-    o.on("-L", "--by-line", "Output only by line in eqnarray") {|x| opts[:output_by_line] = true; opts[:output_by_box] = false }
-    o.on("-B", "--by-box", "Output only by box in eqnarray") {|x| opts[:output_by_line] = false; opts[:output_by_box] = true }
-    o.on("-A", "--by-box-and-line", "Output both box and line-by-line in eqnarray") {|x| opts[:output_by_line] = true; opts[:output_by_box] = true }
+    o.on("-L", "--by-line", "Output only by line in eqnarray") do
+      opts[:output_by_line] = true; opts[:output_by_box] = false; opts[:output_by_item] = false
+    end
+
+    o.on("-B", "--by-box", "Output only by box in eqnarray") do
+      opts[:output_by_line] = false; opts[:output_by_box] = true; opts[:output_by_item] = false
+    end
+
+    o.on("-A", "--by-box-line", "Output both box and line-by-line in eqnarray") do
+        opts[:output_by_line] = true; opts[:output_by_box] = true; opts[:output_by_item] = false
+    end
+    o.on("-I", "--by-box-line-item", "Output each box, line and items in eqnarray row/column") do
+      opts[:output_by_line] = true; opts[:output_by_box] = true; opts[:output_by_item] = true
+    end
 
     o.parse!
 
