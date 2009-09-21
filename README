@@ -66,14 +66,19 @@ macros in the math descriptions.
   (Since file name is created from hash of the TeX math representation,
    it is safe to assume output is same unless resolution parameter is same)
 
--N, --no-map                     Don't create math-index.map file
+-N, --no-map                     Don't create symbol-map.txt file
 
   Do not create math-index.map file
 
 
 -m, --map MAP                    create map file with name (Default: symbol-map.txt)
 
-  Specify file name of the file name to symbol map text file and create it
+  Specify file name of the file name to symbol map text file and create it.
+
+
+-o, --tex-map TEX                    create map file with name (Default: symbol-map.tex)
+
+  Specify file name of the file name to symbol map TeX file and create it.
 
 
 -s, --size SIZE                  specify size parameter (default:Huge)

@@ -118,23 +118,26 @@ class MathPDF
   end
 
 
-  def generate_tex(v)
-    open("#{@syms[v]}.tex", "w#{@opts[:file_encoding]}") do |w|
+  def tex_out(w, pre, size, expr)
       w.puts <<EOF
 \\documentclass{article}
 \\usepackage{amsmath,amssymb}
 \\pagestyle{empty}
-#{@preamble}
+#{pre}
 \\begin{document}
-% If you want to change the size of equation, edit next line.
-{\\#{@opts[:size_param]}
+{\\#{size}
 \\begin{eqnarray*}
-#{v}
+#{expr}
 \\end{eqnarray*}
 }
 \\end{document}
 }
 EOF
+  end
+
+  def generate_tex(v)
+    open("#{@syms[v]}.tex", "w#{@opts[:file_encoding]}") do |w|
+      tex_out(w, @preamble, @opts[:size_param], v)
     end
   end
 
@@ -155,10 +158,20 @@ EOF
     @syms.keys.sort.each {|k| generate_pdf(k)}
   end
 
-  def write_map
+  def write_txt_map
     if @opts[:create_map] != nil
       open(@opts[:create_map], "w#{@opts[:file_encoding]}") do |f|
         @syms.keys.sort.each {|k| kk = k.gsub(/\n/, " "); f.puts "#{@syms[k]}\t#{kk}" }
+      end
+    end
+  end
+
+  def write_tex_map
+    if @opts[:create_tex_map] != nil
+      open(@opts[:create_tex_map], "w#{@opts[:file_encoding]}") do |f|
+        s = Array.new
+        @syms.keys.sort.each {|k| kk = k.gsub(/\n/, " "); s.push("#{@syms[k]}\t&\t#{kk}") }
+        tex_out(f, @preamble, "normal", s.join("\\\\\n"))
       end
     end
   end
@@ -176,7 +189,8 @@ EOF
     scan_files(av)
     output_prep
     post_process
-    write_map
+    write_txt_map
+    write_tex_map
   end
 end
 
@@ -189,6 +203,7 @@ if __FILE__ == $0
 
   opts = {                      # default options
     :create_map => "symbol-map.txt",
+    :create_tex_map => "symbol-map.tex",
     :recreate => false,
     :resolution => 600,
     :path => "./Temp",
@@ -211,7 +226,11 @@ if __FILE__ == $0
 
     o.on("-F", "--force", "Force recreate all files") {|x| opts[:recreate] = true }
     o.on("-N", "--no-map", "Don't create math-index.map file") {|x| opts[:create_map] = false }
+
     o.on("-m MAP", "--map MAP", "create map file with name (Default: #{opts[:create_map]})") {|x| opts[:create_map] = x }
+
+    o.on("-o TEXMAP", "--tex-map TEXMAP", "create map file with name in TeX (Default: #{opts[:create_tex_map]})") {|x| opts[:create_tex_map] = x }
+
     o.on("-s SIZE", "--size SIZE", "specify size parameter (default:#{opts[:size_param]})") {|x| opts[:size_param] = x }
 
     o.on("-r RESOLUTION", "--resolution RESOLUTION", "Output resolution (default:#{opts[:resolution]})") {|x| opts[:resolution] = x.to_i }
