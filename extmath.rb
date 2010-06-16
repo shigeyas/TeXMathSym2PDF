@@ -100,6 +100,8 @@ class MathPDF
             a = a.process(l)
           elsif l =~ /\\begin\{eqnarray\}/
             a = EQNArrayLine.new(self)
+          elsif l =~ /\\def.*\{.*\#.*\}/
+            # ignore lines with def, with # macros inside
           else
             while l.sub!(/\$Id:[^$]*\$/, "")
             end
